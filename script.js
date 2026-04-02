@@ -1,6 +1,7 @@
 const taskInput = document.getElementById("taskInput")
 const addTaskBtn = document.getElementById("addTaskBtn")
 const taskList = document.getElementById("taskList")
+const taskCounter = document.getElementById("taskCounter")
 
 addTaskBtn.addEventListener("click", addTask)
 
@@ -124,6 +125,8 @@ function renderTasks() {
 
     const tasks = getTasks()
 
+    updateTaskCounter(tasks)git add.
+
     taskList.innerHTML = ""
 
     tasks.forEach(function(task) {
@@ -137,3 +140,13 @@ function renderTasks() {
 }
 
 renderTasks()
+
+function updateTaskCounter(tasks) {
+
+    const completed = tasks.filter(task => task.completed).length
+
+    const pending = tasks.length - completed
+
+    taskCounter.textContent = `${pending} pendentes | ${completed} concluídas`
+
+}
