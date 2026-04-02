@@ -44,9 +44,10 @@ function addTask() {
     const tasks = getTasks()
 
     tasks.push({
-        text: taskText,
-        completed: false
-    })
+    id: Date.now(),
+    text: taskText,
+    completed: false
+})
 
     saveTasks(tasks)
 
@@ -56,7 +57,7 @@ function addTask() {
 
 }
 
-function createTaskElement(text, completed) {
+function createTaskElement(id, text, completed) {
 
     const li = document.createElement("li")
     li.classList.add("task-item")
@@ -84,8 +85,9 @@ function createTaskElement(text, completed) {
 
         const updatedTasks = tasks.map(function (task) {
 
-            if (task.text === text) {
+            if (task.id === id) {
                 return {
+                    id: task.id,
                     text: task.text,
                     completed: checkbox.checked
                 }
@@ -106,7 +108,7 @@ function createTaskElement(text, completed) {
         const tasks = getTasks()
 
         const updatedTasks = tasks.filter(function (task) {
-            return task.text !== text
+            return task.id !== id
         })
 
         saveTasks(updatedTasks)
@@ -138,9 +140,33 @@ function saveTasks(tasks) {
 
 function getTasks() {
 
-    const tasks = localStorage.getItem("tasks")
+    const storedTasks = localStorage.getItem("tasks")
 
-    return tasks ? JSON.parse(tasks) : []
+    if (!storedTasks) {
+        return []
+    }
+
+    try {
+        const parsedTasks = JSON.parse(storedTasks)
+
+        if (!Array.isArray(parsedTasks)) {
+            return []
+        }
+
+        return parsedTasks
+            .filter(function (task) {
+                return task && typeof task === "object" && typeof task.text === "string"
+            })
+            .map(function (task, index) {
+                return {
+                    id: typeof task.id === "number" ? task.id : Date.now() + index,
+                    text: task.text,
+                    completed: Boolean(task.completed)
+                }
+            })
+    } catch (error) {
+        return []
+    }
 
 }
 
@@ -168,7 +194,7 @@ function renderTasks() {
 
     filteredTasks.forEach(function (task) {
 
-        const taskElement = createTaskElement(task.text, task.completed)
+        const taskElement = createTaskElement(task.id, task.text, task.completed)
 
         taskList.appendChild(taskElement)
 
