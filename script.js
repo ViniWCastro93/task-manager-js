@@ -14,7 +14,10 @@ function addTask() {
 
     const tasks = getTasks()
 
-    tasks.push(taskText)
+    tasks.push({
+    text: taskText,
+    completed: false
+})
 
     saveTasks(tasks)
 
@@ -24,18 +27,23 @@ function addTask() {
 
 }
 
-function createTaskElement(text) {
+function createTaskElement(text, completed) {
 
     const li = document.createElement("li")
     li.classList.add("task-item")
 
     const checkbox = document.createElement("input")
     checkbox.type = "checkbox"
+    checkbox.checked = completed
     checkbox.classList.add("task-checkbox")
 
     const span = document.createElement("span")
     span.textContent = text
     span.classList.add("task-text")
+
+    if (completed) {
+        span.classList.add("completed")
+}
 
     const deleteButton = document.createElement("button")
     deleteButton.textContent = "Remover"
@@ -43,9 +51,26 @@ function createTaskElement(text) {
 
     checkbox.addEventListener("change", function () {
 
-        span.classList.toggle("completed")
+    const tasks = getTasks()
+
+    const updatedTasks = tasks.map(function(task) {
+
+        if (task.text === text) {
+            return {
+                text: task.text,
+                completed: checkbox.checked
+            }
+        }
+
+        return task
 
     })
+
+    saveTasks(updatedTasks)
+
+    renderTasks()
+
+})
     deleteButton.addEventListener("click", function () {
 
     const tasks = getTasks()
@@ -103,11 +128,11 @@ function renderTasks() {
 
     tasks.forEach(function(task) {
 
-        const taskElement = createTaskElement(task)
+    const taskElement = createTaskElement(task.text, task.completed)
 
-        taskList.appendChild(taskElement)
+    taskList.appendChild(taskElement)
 
-    })
+})
 
 }
 
