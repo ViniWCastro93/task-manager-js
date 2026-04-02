@@ -2,8 +2,36 @@ const taskInput = document.getElementById("taskInput")
 const addTaskBtn = document.getElementById("addTaskBtn")
 const taskList = document.getElementById("taskList")
 const taskCounter = document.getElementById("taskCounter")
+const filterAll = document.getElementById("filterAll")
+const filterPending = document.getElementById("filterPending")
+const filterCompleted = document.getElementById("filterCompleted")
+
+let currentFilter = "all"
 
 addTaskBtn.addEventListener("click", addTask)
+
+taskInput.addEventListener("keydown", handleInputKeydown)
+
+filterAll.addEventListener("click", function () {
+
+    currentFilter = "all"
+    renderTasks()
+
+})
+
+filterPending.addEventListener("click", function () {
+
+    currentFilter = "pending"
+    renderTasks()
+
+})
+
+filterCompleted.addEventListener("click", function () {
+
+    currentFilter = "completed"
+    renderTasks()
+
+})
 
 function addTask() {
 
@@ -16,9 +44,9 @@ function addTask() {
     const tasks = getTasks()
 
     tasks.push({
-    text: taskText,
-    completed: false
-})
+        text: taskText,
+        completed: false
+    })
 
     saveTasks(tasks)
 
@@ -44,7 +72,7 @@ function createTaskElement(text, completed) {
 
     if (completed) {
         span.classList.add("completed")
-}
+    }
 
     const deleteButton = document.createElement("button")
     deleteButton.textContent = "Remover"
@@ -52,39 +80,40 @@ function createTaskElement(text, completed) {
 
     checkbox.addEventListener("change", function () {
 
-    const tasks = getTasks()
+        const tasks = getTasks()
 
-    const updatedTasks = tasks.map(function(task) {
+        const updatedTasks = tasks.map(function (task) {
 
-        if (task.text === text) {
-            return {
-                text: task.text,
-                completed: checkbox.checked
+            if (task.text === text) {
+                return {
+                    text: task.text,
+                    completed: checkbox.checked
+                }
             }
-        }
 
-        return task
+            return task
+
+        })
+
+        saveTasks(updatedTasks)
+
+        renderTasks()
 
     })
 
-    saveTasks(updatedTasks)
-
-    renderTasks()
-
-})
     deleteButton.addEventListener("click", function () {
 
-    const tasks = getTasks()
+        const tasks = getTasks()
 
-    const updatedTasks = tasks.filter(function(task) {
-        return task !== text
+        const updatedTasks = tasks.filter(function (task) {
+            return task.text !== text
+        })
+
+        saveTasks(updatedTasks)
+
+        renderTasks()
+
     })
-
-    saveTasks(updatedTasks)
-
-    renderTasks()
-
-})
 
     li.appendChild(checkbox)
     li.appendChild(span)
@@ -92,8 +121,6 @@ function createTaskElement(text, completed) {
 
     return li
 }
-
-taskInput.addEventListener("keydown", handleInputKeydown)
 
 function handleInputKeydown(event) {
 
@@ -113,11 +140,7 @@ function getTasks() {
 
     const tasks = localStorage.getItem("tasks")
 
-    if (tasks) {
-        return JSON.parse(tasks)
-    }
-
-    return []
+    return tasks ? JSON.parse(tasks) : []
 
 }
 
@@ -125,21 +148,33 @@ function renderTasks() {
 
     const tasks = getTasks()
 
-    updateTaskCounter(tasks)git add.
+    updateTaskCounter(tasks)
+
+    let filteredTasks = tasks
+
+    if (currentFilter === "pending") {
+        filteredTasks = tasks.filter(function(task) {
+            return !task.completed
+        })
+    }
+
+    if (currentFilter === "completed") {
+        filteredTasks = tasks.filter(function(task) {
+            return task.completed
+        })
+    }
 
     taskList.innerHTML = ""
 
-    tasks.forEach(function(task) {
+    filteredTasks.forEach(function (task) {
 
-    const taskElement = createTaskElement(task.text, task.completed)
+        const taskElement = createTaskElement(task.text, task.completed)
 
-    taskList.appendChild(taskElement)
+        taskList.appendChild(taskElement)
 
-})
+    })
 
 }
-
-renderTasks()
 
 function updateTaskCounter(tasks) {
 
@@ -150,3 +185,5 @@ function updateTaskCounter(tasks) {
     taskCounter.textContent = `${pending} pendentes | ${completed} concluídas`
 
 }
+
+renderTasks()
