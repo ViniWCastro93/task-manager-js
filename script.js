@@ -48,7 +48,15 @@ function createTaskElement(text) {
     })
     deleteButton.addEventListener("click", function () {
 
-    li.remove()
+    const tasks = getTasks()
+
+    const updatedTasks = tasks.filter(function(task) {
+        return task !== text
+    })
+
+    saveTasks(updatedTasks)
+
+    renderTasks()
 
 })
 
